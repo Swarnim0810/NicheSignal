@@ -6,6 +6,9 @@
 ### 🚀 Live Demo
 [View Live on Streamlit Cloud](https://nichesignal-f2uh9zfltdcsnbo28tp4p5.streamlit.app/)
 
+### 📺 Video Walkthrough
+[Watch the Demo on Loom](https://www.loom.com/share/1888d82059ee40a78d2d6a8ed47e0805)
+
 ## ✨ Features
 
 - **Google Authentication:** Secure sign-in using Firebase Auth (Google Provider).
