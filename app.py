@@ -1,4 +1,4 @@
-# NicheSignal v5 — app.py — UI redesign 2026-04-24
+# NicheSignal v5 — Created by Swarnim & Mahi
 """
 Streamlit UI with sidebar history, live feed, structured card layout,
 plotly evaluation scorecard, and export functionality. Redesigned with a dark editorial magazine aesthetic.
