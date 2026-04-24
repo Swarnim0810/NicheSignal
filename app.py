@@ -363,20 +363,14 @@ section[data-testid="stSidebar"] {{
 
 
 # ── History helpers ──────────────────────────────────────────────────────────
-def _load_history() -> list[dict]:
-    if os.path.exists(HISTORY_FILE):
-        try:
-            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return []
-    return []
+if "user_history" not in st.session_state:
+    st.session_state["user_history"] = []
 
+def _load_history() -> list[dict]:
+    return st.session_state.get("user_history", [])
 
 def _save_history(history: list[dict]):
-    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
-        json.dump(history, f, indent=2, ensure_ascii=False)
-
+    st.session_state["user_history"] = history
 
 def _append_history(query: str, score: float, passed: bool, brief: dict, evaluation: dict):
     history = _load_history()
