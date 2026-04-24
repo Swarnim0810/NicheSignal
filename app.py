@@ -450,7 +450,7 @@ def _brief_to_markdown(brief: dict, evaluation: dict | None) -> str:
 # ── Theme Toggle Button ──────────────────────────────────────────────────────
 col_t1, col_t2 = st.columns([1, 10])
 with col_t1:
-    btn_label = "☀ LIGHT" if st.session_state["theme"] == "dark" else "🌙 DARK"
+    btn_label = "LIGHT" if st.session_state["theme"] == "dark" else "DARK"
     if st.button(btn_label, key="theme_toggle"):
         toggle_theme()
         st.rerun()
@@ -479,7 +479,7 @@ with col_search_main:
     
 col_btn_empty, col_btn_main, col_btn_empty2 = st.columns([3, 2, 3])
 with col_btn_main:
-    run = st.button("Run Pipeline ▶", use_container_width=True)
+    run = st.button("Run Pipeline", use_container_width=True)
 
 
 # ── Sidebar ──────────────────────────────────────────────────────────────────
@@ -511,7 +511,7 @@ with st.sidebar:
         
         html = f"""
         <div class='sidebar-pill'>
-            <div class='sidebar-pill-text'>🔖 {entry['query'][:25]}</div>
+            <div class='sidebar-pill-text'>{entry['query'][:25]}</div>
             <div class='{badge_class}'>{badge_text}</div>
         </div>
         """
@@ -524,7 +524,7 @@ with st.sidebar:
     st.sidebar.markdown("---")
     st.sidebar.markdown(
         "<div style='text-align: center; color: #8A7A6A; font-size: 12px; font-weight: 500; opacity: 0.8;'>"
-        "🛠️ Built with ❤️ by Swarnim & Mahi"
+        "Built by Swarnim & Mahi"
         "</div>", 
         unsafe_allow_html=True
     )
