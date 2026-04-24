@@ -22,13 +22,21 @@
 
 ## 🏗️ Architecture
 
-The pipeline is orchestrated entirely with **LangGraph**, routing through the following state nodes:
+The pipeline is orchestrated with **LangGraph**, utilizing a cyclic state machine:
 
-1. **`trend_scout`**: Gathers realtime signals concurrently.
-2. **`content_analyzer`**: Runs semantic clustering to filter out noise.
-3. **`deep_researcher`**: Fetches the top URL contexts via BeautifulSoup.
-4. **`brief_synthesizer`**: Compiles all context into a targeted JSON brief.
-5. **`strict_evaluator`**: Judges the brief against the threshold (72%). Triggers a retry loop (max 3 revisions) with critique feedback if the brief fails.
+```mermaid
+graph TD
+    A[User Query] --> B(Trend Scout)
+    B --> C(Content Analyzer)
+    C --> D(Deep Researcher)
+    D --> E(Brief Synthesizer)
+    E --> F{Strict Evaluator}
+    F -- Fail < 72% --> E
+    F -- Pass >= 72% --> G[Final Intelligence Brief]
+    G --> H[Firestore Persistence]
+```
+
+See [SPECIFICATION.md](./SPECIFICATION.md) for the full technical breakdown.
 
 ## 🚀 Getting Started
 
