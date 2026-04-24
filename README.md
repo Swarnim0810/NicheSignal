@@ -36,7 +36,7 @@ graph TD
     G --> H[Firestore Persistence]
 ```
 
-See [SPECIFICATION.md](./SPECIFICATION.md) for the full technical breakdown.
+See [PROBLEM_STATEMENT.md](./PROBLEM_STATEMENT.md) for the project background and [SPECIFICATION.md](./SPECIFICATION.md) for the full technical breakdown.
 
 ## 🚀 Getting Started
 
