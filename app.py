@@ -12,6 +12,9 @@ import json
 import threading
 from datetime import datetime, timezone
 from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import credentials, firestore
+import streamlit.components.v1 as components
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,6 +23,18 @@ load_dotenv(dotenv_path=os.path.join(BASE_DIR, ".env"), override=True)
 HISTORY_FILE = os.path.join(BASE_DIR, "query_history.json")
 
 st.set_page_config(page_title="NicheSignal", page_icon="📡", layout="wide", initial_sidebar_state="expanded")
+
+# ── FIREBASE SETUP ───────────────────────────────────────────────────────────
+if not firebase_admin._apps:
+    try:
+        cert_dict = dict(st.secrets["firebase"])
+        cred = credentials.Certificate(cert_dict)
+        firebase_admin.initialize_app(cred)
+    except Exception as e:
+        st.error(f"Firebase Init Error: {e}")
+
+db = firestore.client() if firebase_admin._apps else None
+firebase_auth = components.declare_component("firebase_auth", path=os.path.join(BASE_DIR, "auth_frontend"))
 
 # ── THEME TRACKING ───────────────────────────────────────────────────────────
 if "theme" not in st.session_state:
@@ -367,10 +382,21 @@ if "user_history" not in st.session_state:
     st.session_state["user_history"] = []
 
 def _load_history() -> list[dict]:
+    if "user" in st.session_state and db:
+        uid = st.session_state["user"]["uid"]
+        doc = db.collection("users").document(uid).get()
+        if doc.exists:
+            st.session_state["user_history"] = doc.to_dict().get("history", [])
     return st.session_state.get("user_history", [])
 
 def _save_history(history: list[dict]):
     st.session_state["user_history"] = history
+    if "user" in st.session_state and db:
+        uid = st.session_state["user"]["uid"]
+        try:
+            db.collection("users").document(uid).set({"history": history}, merge=True)
+        except Exception as e:
+            st.error(f"Error saving to database: {e}")
 
 def _append_history(query: str, score: float, passed: bool, brief: dict, evaluation: dict):
     history = _load_history()
@@ -458,7 +484,21 @@ with col_btn_main:
 
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("<div class='sidebar-label'>COLLECTION</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sidebar-label'>ACCOUNT</div>", unsafe_allow_html=True)
+    user_info = firebase_auth()
+    
+    if user_info:
+        if "user" not in st.session_state or st.session_state["user"]["uid"] != user_info["uid"]:
+            st.session_state["user"] = user_info
+            _load_history()
+            st.rerun()
+            
+    if "user" in st.session_state:
+        st.success(f"Hi, {st.session_state['user'].get('name', 'Creator')}")
+    else:
+        st.caption("Sign in to save your intelligence briefs.")
+
+    st.markdown("<br><div class='sidebar-label'>COLLECTION</div>", unsafe_allow_html=True)
     st.markdown("<div class='sidebar-title'>Query History</div>", unsafe_allow_html=True)
     st.markdown("<div class='sidebar-divider'></div>", unsafe_allow_html=True)
 
