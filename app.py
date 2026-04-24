@@ -488,19 +488,14 @@ with st.sidebar:
     user_info = firebase_auth()
     
     if user_info:
-        if "user" not in st.session_state or st.session_state["user"]["uid"] != user_info["uid"]:
+        if "user" not in st.session_state or st.session_state["user"].get("uid") != user_info.get("uid"):
             st.session_state["user"] = user_info
             _load_history()
             st.rerun()
-            
-    if "user" in st.session_state:
-        st.success(f"Hi, {st.session_state['user'].get('name', 'Creator')}")
-        if st.button("🚪 Logout", key="logout_btn", use_container_width=True):
-            del st.session_state["user"]
-            st.session_state["user_history"] = []
-            st.rerun()
-    else:
-        st.caption("Sign in to save your intelligence briefs.")
+    elif user_info is None and "user" in st.session_state:
+        del st.session_state["user"]
+        st.session_state["user_history"] = []
+        st.rerun()
 
     st.markdown("<br><div class='sidebar-label'>COLLECTION</div>", unsafe_allow_html=True)
     st.markdown("<div class='sidebar-title'>Query History</div>", unsafe_allow_html=True)
