@@ -495,6 +495,10 @@ with st.sidebar:
             
     if "user" in st.session_state:
         st.success(f"Hi, {st.session_state['user'].get('name', 'Creator')}")
+        if st.button("🚪 Logout", key="logout_btn", use_container_width=True):
+            del st.session_state["user"]
+            st.session_state["user_history"] = []
+            st.rerun()
     else:
         st.caption("Sign in to save your intelligence briefs.")
 
