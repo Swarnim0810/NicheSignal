@@ -21,7 +21,7 @@ def _groq_chat(prompt: str) -> str:
         raise ValueError("GROQ_API_KEY is missing. Set it in .env.")
     client = Groq(api_key=api_key)
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-8b-instant",
         temperature=0.3,
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_object"},
