@@ -1,4 +1,5 @@
 # 📡 NicheSignal v5
+**Created by Swarnim & Mahi**
 
 **NicheSignal** is a multi-agent AI pipeline designed to automate content gap intelligence for YouTube creators. By scraping the web for trending developer data, clustering the results, deep-researching high-value URLs, and synthesizing a structured brief, the pipeline identifies topics the audience is searching for that aren't being well-served by existing content.
 

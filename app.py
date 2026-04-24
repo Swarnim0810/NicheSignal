@@ -521,6 +521,14 @@ with st.sidebar:
             st.session_state["loaded_eval"] = entry.get("evaluation", {})
             st.session_state["loaded_query"] = entry.get("query", "")
 
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(
+        "<div style='text-align: center; color: #8A7A6A; font-size: 12px; font-weight: 500; opacity: 0.8;'>"
+        "🛠️ Built with ❤️ by Swarnim & Mahi"
+        "</div>", 
+        unsafe_allow_html=True
+    )
+
 
 # ── Render brief cards ───────────────────────────────────────────────────────
 def render_brief(brief: dict, evaluation: dict | None, display_query: str):
