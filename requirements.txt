@@ -10,4 +10,3 @@ aiohttp>=3.9.0
 python-dotenv>=1.0.0
 plotly>=5.0.0
 firebase-admin
-torchvision
