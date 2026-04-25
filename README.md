@@ -22,19 +22,7 @@
 
 ## 🏗️ Architecture
 
-The pipeline is orchestrated with **LangGraph**, utilizing a cyclic state machine:
-
-```mermaid
-graph TD
-    A[User Query] --> B(Trend Scout)
-    B --> C(Content Analyzer)
-    C --> D(Deep Researcher)
-    D --> E(Brief Synthesizer)
-    E --> F{Strict Evaluator}
-    F -- Fail < 72% --> E
-    F -- Pass >= 72% --> G[Final Intelligence Brief]
-    G --> H[Firestore Persistence]
-```
+![NicheSignal Architecture](assets/architecture.png)
 
 See [PROBLEM_STATEMENT.md](./PROBLEM_STATEMENT.md) for the project background and [SPECIFICATION.md](./SPECIFICATION.md) for the full technical breakdown.
 
