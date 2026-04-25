@@ -1,0 +1,28 @@
+name: Streamlit Deployment Status
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-deploy-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Deployment
+        uses: bobheadxi/deployments@v1
+        id: deployment
+        with:
+          step: start
+          action: start
+          env: streamlit-cloud
+          no_override: false
+
+      - name: Update Deployment Status
+        uses: bobheadxi/deployments@v1
+        with:
+          step: finish
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env_url: https://nichesignal-f2uh9zfltdcsnbo28tp4p5.streamlit.app/
+          env: streamlit-cloud

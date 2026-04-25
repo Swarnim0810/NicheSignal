@@ -20,16 +20,22 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(dotenv_path=os.path.join(BASE_DIR, ".env"), override=True)
 
-HISTORY_FILE = os.path.join(BASE_DIR, "query_history.json")
-
 st.set_page_config(page_title="NicheSignal", page_icon="📡", layout="wide", initial_sidebar_state="expanded")
 
 # ── FIREBASE SETUP ───────────────────────────────────────────────────────────
 if not firebase_admin._apps:
     try:
-        cert_dict = dict(st.secrets["firebase"])
-        cred = credentials.Certificate(cert_dict)
-        firebase_admin.initialize_app(cred)
+        cert_dict = None
+        if "firebase" in st.secrets:
+            cert_dict = dict(st.secrets["firebase"])
+        elif os.getenv("FIREBASE_SERVICE_ACCOUNT"):
+            cert_dict = json.loads(os.getenv("FIREBASE_SERVICE_ACCOUNT"))
+        
+        if cert_dict:
+            cred = credentials.Certificate(cert_dict)
+            firebase_admin.initialize_app(cred)
+        else:
+            st.warning("Firebase credentials not found. Auth and History will be disabled.")
     except Exception as e:
         st.error(f"Firebase Init Error: {e}")
 
