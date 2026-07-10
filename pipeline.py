@@ -15,11 +15,16 @@ from state import NicheSignalState
 from agents.trend_scout import trend_scout
 from agents.content_analyzer import content_analyzer
 from agents.deep_researcher import deep_researcher
+from agents.rag_retriever import rag_retriever
 from agents.brief_synthesizer import brief_synthesizer
 from agents.strict_evaluator import strict_evaluator
 from event_bus import emit_event
+from rag_store import build_index
 
 MAX_REVISIONS = 2
+
+# Build RAG index once at module load (~1-3s, then cached in memory)
+build_index()
 
 
 def _increment_revision(state: NicheSignalState) -> dict:
@@ -47,6 +52,7 @@ def build_graph() -> StateGraph:
     graph.add_node("trend_scout", trend_scout)
     graph.add_node("content_analyzer", content_analyzer)
     graph.add_node("deep_researcher", deep_researcher)
+    graph.add_node("rag_retriever", rag_retriever)
     graph.add_node("brief_synthesizer", brief_synthesizer)
     graph.add_node("strict_evaluator", strict_evaluator)
     graph.add_node("increment_revision", _increment_revision)
@@ -54,7 +60,8 @@ def build_graph() -> StateGraph:
     graph.set_entry_point("trend_scout")
     graph.add_edge("trend_scout", "content_analyzer")
     graph.add_edge("content_analyzer", "deep_researcher")
-    graph.add_edge("deep_researcher", "brief_synthesizer")
+    graph.add_edge("deep_researcher", "rag_retriever")
+    graph.add_edge("rag_retriever", "brief_synthesizer")
     graph.add_edge("brief_synthesizer", "strict_evaluator")
     graph.add_edge("increment_revision", "brief_synthesizer")
 
@@ -80,6 +87,7 @@ def run_pipeline(query: str) -> NicheSignalState:
         "clusters": [],
         "top_signals": [],
         "full_source_content": [],
+        "retrieved_briefs": [],
         "brief": None,
         "evaluation": None,
         "revision": 0,
@@ -97,6 +105,7 @@ def stream_pipeline(query: str):
         "clusters": [],
         "top_signals": [],
         "full_source_content": [],
+        "retrieved_briefs": [],
         "brief": None,
         "evaluation": None,
         "revision": 0,

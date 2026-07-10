@@ -736,6 +736,7 @@ elif run and query.strip():
     def _colorize_log(line: str) -> str:
         if "[HN]" in line: return f"<span class='log-hn'>{line}</span>"
         if "[SO]" in line: return f"<span class='log-so'>{line}</span>"
+        if "rag_retriever" in line.lower() or "rag_store" in line.lower(): return f"<span style='color:#B388FF'>{line}</span>"
         if "synthesizer" in line.lower(): return f"<span class='log-synth'>{line}</span>"
         if "evaluator" in line.lower(): return f"<span class='log-eval'>{line}</span>"
         return line

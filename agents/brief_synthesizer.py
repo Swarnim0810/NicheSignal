@@ -29,6 +29,29 @@ def _groq_chat(prompt: str) -> str:
     return (response.choices[0].message.content or "").strip()
 
 
+def _format_rag_context(retrieved_briefs: list[dict]) -> str:
+    """Format retrieved past briefs as a compact differentiation block.
+    Token budget: ~40-60 tokens per brief × 3 briefs = ~120-180 tokens total.
+    Only surfaces content_angle + suggested_title — enough for the LLM to avoid repeating.
+    """
+    if not retrieved_briefs:
+        return ""
+    lines = []
+    for i, r in enumerate(retrieved_briefs, 1):
+        lines.append(
+            f"  {i}. Past query: \"{r['query']}\"\n"
+            f"     Angle taken: {r['content_angle']}\n"
+            f"     Title used: {r['suggested_title']}"
+        )
+    block = "\n".join(lines)
+    return (
+        "\nHISTORICAL INTELLIGENCE (similar past briefs — DO NOT repeat these angles):\n"
+        + block
+        + "\nYou MUST propose a content angle that is distinct from all of the above."
+        + " Aggressive differentiation is required.\n"
+    )
+
+
 def _format_source_passages(sources: list[dict], max_total_chars: int = 8000) -> str:
     """Format full_source_content as labeled passages for the prompt.
     Caps total characters at max_total_chars (~2000 tokens) to save context.
@@ -61,7 +84,8 @@ def _format_source_passages(sources: list[dict], max_total_chars: int = 8000) ->
 
 
 def _build_prompt(query: str, signals: list[dict], clusters: list[dict],
-                  sources: list[dict], revision: int, evaluation: dict | None) -> str:
+                  sources: list[dict], revision: int, evaluation: dict | None,
+                  retrieved_briefs: list[dict] | None = None) -> str:
     signal_lines = "\n".join(
         f"- [{s['source']}] {s['title']} (score: {s['score']:.2f}) — {s.get('url', '')}"
         for s in signals[:8]
@@ -75,6 +99,7 @@ def _build_prompt(query: str, signals: list[dict], clusters: list[dict],
         )
 
     source_block = _format_source_passages(sources)
+    rag_block = _format_rag_context(retrieved_briefs or [])
 
     retry_block = ""
     if revision > 0 and evaluation:
@@ -100,7 +125,7 @@ SIGNAL CLUSTERS:
 
 DEEP SOURCE CONTENT:
 {source_block}
-{retry_block}
+{rag_block}{retry_block}
 Generate a structured intelligence brief as valid JSON with EXACTLY these 9 fields:
 {{
   "gap_summary": "One sentence: what the audience wants that no existing content provides",
@@ -150,6 +175,7 @@ def brief_synthesizer(state: NicheSignalState) -> dict:
     revision = state.get("revision", 0)
     sources = state.get("full_source_content", [])
     evaluation = state.get("evaluation")
+    retrieved_briefs = state.get("retrieved_briefs", [])
 
     attempt = revision + 1
     emit_event(f"[brief_synthesizer] Generating brief... (attempt {attempt}/3)")
@@ -162,7 +188,7 @@ def brief_synthesizer(state: NicheSignalState) -> dict:
         }
 
     try:
-        prompt = _build_prompt(query, top_signals, clusters, sources, revision, evaluation)
+        prompt = _build_prompt(query, top_signals, clusters, sources, revision, evaluation, retrieved_briefs)
         raw = _groq_chat(prompt)
         start_idx = raw.find('{')
         end_idx = raw.rfind('}')

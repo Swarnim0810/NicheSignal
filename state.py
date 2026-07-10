@@ -9,6 +9,7 @@ class NicheSignalState(TypedDict):
     clusters: list[dict]
     top_signals: list[dict]
     full_source_content: list[dict]
+    retrieved_briefs: list[dict]   # RAG: similar past briefs (from rag_retriever)
     brief: Optional[dict]
     evaluation: Optional[dict]
     revision: int
